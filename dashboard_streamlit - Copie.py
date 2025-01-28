@@ -240,26 +240,26 @@ def main():
 
     # #############################
     
-    def get_list_display_features(shap_val_trans, def_n, key):
-        count_checkbox = 20  
-        count_multiselect = 10        
-        all_feat = X_tr_all.columns.to_list()
-        
-        n = st.slider("Nb of features to display",
-                      min_value=2, max_value=42,
-                      value=def_n, step=None, format=None, key=key)
-        
-        if st.checkbox('Choose main features according to SHAP local interpretation for the applicant customer', key=count_checkbox):
-            disp_cols = list(shap_val_trans.abs()
-                                .sort_values(ascending=False)
-                                .iloc[:n].index)
-        else:
-            disp_cols = list(get_features_importances().sort_values(ascending=False)\
-                                            .iloc[:n].index)          
-        
-        disp_box_cols = st.multiselect('Choose the features to display (default: order of general importance for lgbm calssifier):',
-                                        sorted(all_feat),
-                                        default=disp_cols, key=count_multiselect)
+    widget_id = (id for id in range(1, 10_000))  # Generator for unique widget keys
+
+def get_list_display_features(shap_val_trans, def_n):
+    all_feat = X_tr_all.columns.to_list()
+
+    n = st.slider("Nb of features to display",
+                  min_value=2, max_value=42,
+                  value=def_n, step=None, format=None, key=next(widget_id))
+
+    if st.checkbox('Choose main features according to SHAP local interpretation', key=next(widget_id)):
+        disp_cols = list(shap_val_trans.abs()
+                         .sort_values(ascending=False)
+                         .iloc[:n].index)
+    else:
+        disp_cols = list(get_features_importances().sort_values(ascending=False)
+                         .iloc[:n].index)
+
+    disp_box_cols = st.multiselect('Choose the features to display (default: all)',
+                                   sorted(all_feat),
+                                   default=disp_cols, key=next(widget_id))
         
         count_checkbox += 1                                
         count_multiselect += 1                                
